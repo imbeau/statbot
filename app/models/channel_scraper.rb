@@ -1,67 +1,60 @@
 class ChannelScraper
 
-	
-
 	def initialize(api_key, org_system_id)
-		path = "https://app.salsify.com/api/orgs/"
-		channels = Faraday.new(path + org_system_id + "/channels")
-  		channels.authorization :Bearer, api_key
-  		response = channels.get
 
-  		#puts response.body
-  		json = JSON.parse(response.body)
+		# sets up connection
+		conn = get_connection api_key, org_system_id
+		puts "getting started!"
+		 
+		json = get_page_of_channels(conn, 1)
 
-  		parse_channels(json)
+		#puts json
+		save_channels_from_page(json)	
 
-
-
+  		# until on_last_page?(json)
+  		# 	i = 2
+  		# 	json = get_page_of_channels(conn, i)
+  		# 	save_channels_from_page(json)
+  		# 	i++
+  		# end
+  		 
 	end
 
-	def parse_channels(json)
-  		#total_entries
-  		#channels -> channel_id
-  		#		  -> name
-  		# sv1 = obj['KEY1']['SUB_KEY1']
+	def get_connection(api_key, org_system_id)
+		path = "https://app.salsify.com/api/orgs/#{org_system_id}"
+		channels = Faraday.new(path)
+  		channels.authorization :Bearer, api_key
 
-
-  		if(total_channels(json) =< per_page(json))
-  			# we have only one page!
-  			save_channels(json['channels'])
-  		else
-  			# we have many pages!
-
-  		end
+  		return channels
 	end
 
 	# get the json for a given channel
-	def get_channel(org_system_id, page)
-		channels = Faraday.new("https://app.salsify.com/api/orgs/" + org_system_id + "/channels")
+	def get_page_of_channels(conn, page_number, per_page = 30)
 
+		response = conn.get "channels", { :per_page => per_page, 
+										   :page => page_number
+										 } 
+		response.body
+		JSON.parse(response.body)
 	end
 
-	def parse_page_of_channels(json, per_page, page, total_products)
-		# scrape this page
-		# if this page (per_page * page page) is not the last page (< total), call it again on the next page
-		# if this page is the last page, exit
-		save_channels_from_page(parse_channels(json))
-
-		if page * per_page <= total_products
-			# recursion
-			parse_page_of_channels()
-
-
-	end
-
-	def save_channels_from_page(page)
-		page.each do |channel|
+	def save_channels_from_page(json)
+		json['channels'].each do |channel|
   			puts channel['id']
   			puts channel['name']
-  			s = Channel.new(channel['id'], channel['name'])
-  			s.save
+  			#s = Channel.new(channel['id'], channel['name'])
+  			#s.save
   		end
 
 	end
 
+	def on_last_page?(json)
+		current_page(json) < total_pages(json) ? false : true
+	end
+
+	def total_pages(json)
+		total_channels(json) / per_page(json)
+	end
 
 	def total_channels(json)
 		json['meta']['total_entries']
@@ -71,7 +64,7 @@ class ChannelScraper
 		json['meta']['per_page']
 	end
 
-	def get_page(json)
+	def curent_page(json)
 		json['meta']['page']
 	end
 
