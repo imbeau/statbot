@@ -5,4 +5,15 @@ class Channel < ApplicationRecord
 	validates :enabled, presence: true
 
 
+	#attr_accessor :name, :channel_id, :enabled
+
+	def initialize(attributes = {})
+		super(attributes)
+
+		@name = attributes[:name]
+		@channel_id = attributes[:channel_id]
+
+	end
+
+
 end

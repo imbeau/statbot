@@ -10,12 +10,12 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171102013203) do
+ActiveRecord::Schema.define(version: 20171109224605) do
 
   create_table "channels", force: :cascade do |t|
     t.string "name"
     t.integer "channel_id"
-    t.boolean "enabled"
+    t.boolean "enabled", default: true
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end

@@ -40,10 +40,15 @@ class ChannelScraper
 
 	def save_channels_from_page(json)
 		json['channels'].each do |channel|
-  			puts channel['id']
-  			puts channel['name']
-  			#s = Channel.new(channel['id'], channel['name'])
-  			#s.save
+  			print "#{channel['id']} | " 
+  			print channel['name']
+  			s = Channel.new(channel_id: channel['id'], name: channel['name'])
+  			
+  			if s.save
+  				puts "...success!"
+  			else
+  				puts "...fail"
+  			end
   		end
 
 	end
