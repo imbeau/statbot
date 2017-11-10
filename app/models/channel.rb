@@ -1,4 +1,5 @@
 class Channel < ApplicationRecord
+	has_many :products, dependent: :destroy
 
 	validates :name, presence: true
 	validates :channel_id, presence: true, uniqueness: true
