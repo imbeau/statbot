@@ -10,20 +10,28 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171109232113) do
+ActiveRecord::Schema.define(version: 20171123134843) do
 
   create_table "channels", force: :cascade do |t|
     t.string "name"
-    t.integer "channel_id"
     t.boolean "enabled", default: true
+    t.integer "organization_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.boolean "published", default: false
+    t.index ["organization_id"], name: "index_channels_on_organization_id"
+  end
+
+  create_table "organizations", force: :cascade do |t|
+    t.string "name"
+    t.string "system_id"
+    t.string "api_token"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
   create_table "products", force: :cascade do |t|
     t.string "name"
-    t.string "product_id"
-    t.datetime "last_seen"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "channel_id"
