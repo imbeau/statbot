@@ -1,6 +1,14 @@
 class ChannelCollector 
 	# this guy should orchestrate the entire channel collection process
 
+	# to determine if a channel is published:
+	# => Look for a value in "completed_analysis_summary"
+	# 	 If it's null, it wasn't published
+	#    If it has a value, look in that JSON array for a "completed" attribute
+	# 		If it's true, it has published
+	#       False, it's failed
+
+
 	#should take an org_system_id & api_token for a valid salsify org
 	def initialize(org, connection)
 		@salsify = connection
@@ -46,13 +54,23 @@ class ChannelCollector
 
 	end
 
+	def published(channel)
+		#latest_completed_run or latest_run
+		if channel['latest_run']
+			if  channel['latest_run']['status'] == "completed"
+				return true
+			end
+		end
+			return false
+	end
+
 	# Takes Adds each channel and its ID from the feed to an array
 	# which it returns
 	def channels_to_objects(json)
 		channels = []
 		json['channels'].each do |channel|
-			channels.push(Channel.new(id: channel['id'], name: channel['name']))	
-			puts "#{channel['id']} | #{channel['name']}"	
+			channels.push(Channel.new(id: channel['id'], name: channel['name'], published: published(channel)))	
+			puts "#{channel['id']} | #{channel['name']} | #{published(channel)}"	
 		end
 
 		channels
@@ -60,9 +78,9 @@ class ChannelCollector
 
 	def save_channels(new_channels)
 		new_channels.each do |channel|
+			puts "saving! | #{channel.inspect}"
 			channel.organization_id = @org.id
-			puts channel.inspect
-			#channel.save
+			channel.save
 		end
 	end
 
