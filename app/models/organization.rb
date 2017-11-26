@@ -1,5 +1,6 @@
 class Organization < ApplicationRecord
 	has_many :channels, dependent: :destroy
+	has_many :organization_snapshots, dependent: :destroy
 
 	validates :name, presence: true
 	validates :api_token, presence: true

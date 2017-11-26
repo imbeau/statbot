@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171123134843) do
+ActiveRecord::Schema.define(version: 20171126131925) do
 
   create_table "channels", force: :cascade do |t|
     t.string "name"
@@ -20,6 +20,18 @@ ActiveRecord::Schema.define(version: 20171123134843) do
     t.datetime "updated_at", null: false
     t.boolean "published", default: false
     t.index ["organization_id"], name: "index_channels_on_organization_id"
+  end
+
+  create_table "organization_snapshots", force: :cascade do |t|
+    t.integer "total_product_count"
+    t.integer "total_products_published"
+    t.integer "catalog_count"
+    t.integer "total_users"
+    t.integer "total_digital_assets"
+    t.integer "organization_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["organization_id"], name: "index_organization_snapshots_on_organization_id"
   end
 
   create_table "organizations", force: :cascade do |t|
@@ -35,6 +47,7 @@ ActiveRecord::Schema.define(version: 20171123134843) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "channel_id"
+    t.string "salsify_id"
     t.index ["channel_id"], name: "index_products_on_channel_id"
   end
 

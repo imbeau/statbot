@@ -1,7 +1,7 @@
 class ProductCollector
 	# product collector has to be invoked with a channel to scrape
 
-	def initialize(connection, channels)
+	def initialize(connection, channels = nil)
 		@salsify = connection
 		@channels = channels
 	end
@@ -11,6 +11,10 @@ class ProductCollector
 	# set of products
 
 	def get_products(channel_id)
+		if channel_id == nil
+			puts "WARNING: Please specify a channel ID"
+			return
+		end
 
 		i = 1
 		done = false
@@ -41,17 +45,20 @@ class ProductCollector
 	def products_to_objects(json, channel_id)
 		products = []
 		json['products'].each do |product|
-			products.push(Product.new(channels_id: channel_id, id: product['id'], name: product['name']))		
+			products.push(Product.new(channel_id: channel_id, salsify_id: product['id'], name: product['name']))		
 		end
 
 		products
 	end	
 
+	def get_total_products
+		@salsify.total_entries(@salsify.get('products'))
+	end
+
 	def save_products(new_products)
 		new_products.each do |product|
-			puts product.inspect
-			puts product.valid?
-			puts "-------"
+			puts "saving #{product.id}"
+			product.save
 		end
 	end
 end

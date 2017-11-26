@@ -13,7 +13,7 @@ class Client
 	end
 
 	# get the API response for a given path & return it in JSON
-	def get(path, params)
+	def get(path, params = nil)
 
 		response = @conn.get path, params
 		JSON.parse(response.body)
@@ -31,11 +31,12 @@ class Client
 
 
 	def get_total_pages(json)
-		total_entries = json['meta']['total_entries']
 		entries_per_page = json['meta']['per_page']
+		total_entries(json) / entries_per_page
+	end
 
-
-		total_entries / entries_per_page
+	def total_entries(json)
+		json['meta']['total_entries']
 	end
 
 	def get_current_page(json)

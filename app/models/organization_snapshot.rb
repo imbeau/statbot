@@ -1,0 +1,3 @@
+class OrganizationSnapshot < ActiveRecord
+
+end
