@@ -10,7 +10,7 @@ class ProductCollector
 	# We use a specific parameter called "filter" which is parsed by Salsify to return the correct
 	# set of products
 
-	def get_products(channel_id)
+	def get_products_from_channel(channel_id)
 		if channel_id == nil
 			puts "WARNING: Please specify a channel ID"
 			return
@@ -42,10 +42,37 @@ class ProductCollector
 		new_products
 	end
 
-	def products_to_objects(json, channel_id)
+	def get_products
+		i = 1
+		done = false
+		new_products = []
+
+		until done do
+			current_page = @salsify.get('products',
+						{
+							:page => i,
+							:per_page => "100"
+						}
+					)
+
+			total_pages = @salsify.get_total_pages(current_page)
+			puts "we are on #{@salsify.get_current_page(current_page)} of #{total_pages} pages to get through!"
+			new_products += products_to_objects(current_page)
+
+			i >= total_pages ? break : i+= 1
+		end
+
+		puts "we fetched #{new_products.count}"
+	end
+
+	def products_to_objects(json, channel_id = 0)
 		products = []
 		json['products'].each do |product|
-			products.push(Product.new(channel_id: channel_id, salsify_id: product['id'], name: product['name']))		
+			if channel_id == 0
+				products.push(Product.new(channel_id: channel_id, salsify_id: product['id'], name: product['name']))
+			else
+				products.push(Product.new(salsify_id: product['id'], name: product['name']))
+			end
 		end
 
 		products
